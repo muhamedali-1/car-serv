@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CarServ Login</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+/* ================= BACKGROUND CAR ================= */
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    position:relative;
+
+    background: url("https://images.unsplash.com/photo-1503376780353-7e6692767b70") no-repeat center center/cover;
+}
+
+/* dark cinematic overlay */
+body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4));
+}
+
+/* glowing waves */
+body::after{
+    content:"";
+    position:absolute;
+    width:600px;
+    height:600px;
+    border-radius:50%;
+    background:#ff3b3b;
+    filter:blur(120px);
+    opacity:0.25;
+    top:-200px;
+    left:-200px;
+    animation: float 8s infinite alternate;
+}
+
+@keyframes float{
+    from{transform:translateY(0);}
+    to{transform:translateY(80px);}
+}
+
+/* ================= LOGIN BOX ================= */
+.box{
+    position:relative;
+    z-index:2;
+
+    width:360px;
+    padding:35px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:22px;
+
+    text-align:center;
+    color:white;
+
+    box-shadow:0 25px 60px rgba(0,0,0,0.6);
+
+    animation: fadeSlide 0.8s ease;
+}
+
+@keyframes fadeSlide{
+    from{opacity:0; transform:translateY(40px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* ================= TITLE ================= */
+h2{
+    font-size:24px;
+    margin-bottom:20px;
+
+    background: linear-gradient(90deg,#ff1e1e,#ff4d4d,#ff7b00);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* ================= INPUT ================= */
+input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+
+    border:none;
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.1);
+    color:white;
+    outline:none;
+}
+
+/* ================= PASSWORD ================= */
+.pass-wrap{
+    position:relative;
+}
+
+.eye{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    color:#ccc;
+}
+
+/* ================= BUTTONS (COLOR SYSTEM FIXED) ================= */
+button{
+    width:100%;
+    padding:13px;
+
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+
+    transition:0.3s;
+    margin-top:10px;
+}
+
+/* 🔴 LOGIN - Red Luxury */
+.login-btn{
+    background: linear-gradient(135deg,#ff3b3b,#ff6b00);
+    color:white;
+    box-shadow:0 12px 25px rgba(255,59,59,0.35);
+}
+
+/* 🔵 REGISTER - Blue Tech */
+.register-btn{
+    background: linear-gradient(135deg,#00c6ff,#0072ff);
+    color:white;
+    box-shadow:0 12px 25px rgba(0,114,255,0.25);
+}
+
+/* 🟡 FORGOT - Gold Luxury */
+.forgot-btn{
+    background: linear-gradient(135deg,#f9ca24,#f39c12);
+    color:white;
+    box-shadow:0 12px 25px rgba(243,156,18,0.25);
+}
+
+/* hover */
+button:hover{
+    transform:scale(1.03);
+}
+
+/* ================= SHAKE ERROR ================= */
+.shake{
+    animation:shake 0.4s;
+}
+
+@keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    50%{transform:translateX(8px);}
+    75%{transform:translateX(-8px);}
+    100%{transform:translateX(0);}
+}
+
+#msg{
+    margin-top:10px;
+    color:#ff6b6b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="loginBox">
+    <h2>🚗 CarServ Login</h2>
+
+    <input id="username" placeholder="Username">
+
+    <div class="pass-wrap">
+        <input id="password" type="password" placeholder="Password">
+        <span class="eye" onclick="togglePass()">👁</span>
+    </div>
+
+    <button class="login-btn" onclick="login()">Login</button>
+
+    <button class="register-btn" onclick="window.location.href='register.html'">
+        Register
+    </button>
+
+    <button class="forgot-btn" onclick="window.location.href='reset.html'">
+        Forgot Password?
+    </button>
+
+    <p id="msg"></p>
+</div>
+
+<script>
+
+if(!localStorage.getItem("users")){
+    localStorage.setItem("users", JSON.stringify([
+        {username:"admin", password:"1234", role:"admin"},
+        {username:"mohamed", password:"1111", role:"customer"}
+    ]));
+}
+
+function login(){
+
+    let box = document.getElementById("loginBox");
+
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+
+    let users = JSON.parse(localStorage.getItem("users"));
+
+    let user = users.find(u => u.username === username && u.password === password);
+
+    if(user){
+        localStorage.setItem("role", user.role);
+        window.location.href = "home.html";
+    }else{
+        document.getElementById("msg").innerText = "❌ Wrong Data";
+
+        box.classList.add("shake");
+        setTimeout(()=>box.classList.remove("shake"),400);
+    }
+}
+
+function togglePass(){
+    let pass = document.getElementById("password");
+    pass.type = pass.type === "password" ? "text" : "password";
+}
+
+</script>
+
+</body>
+</html>

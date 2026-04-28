@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>CarServ - تفاصيل العربية</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+/* ================= BACKGROUND ================= */
+body{
+    direction: rtl;
+    background: url("https://images.unsplash.com/photo-1503376780353-7e6692767b70") no-repeat center center/cover;
+    min-height:100vh;
+    color:#fff;
+}
+
+/* ================= OVERLAY ================= */
+.overlay{
+    background: rgba(0,0,0,0.65);
+    min-height:100vh;
+    padding-top:90px;
+}
+
+/* ================= NAVBAR FIX FINAL ================= */
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:15px 50px;
+
+    position:fixed;
+    width:100%;
+    top:0;
+    left:0;
+    z-index:1000;
+
+    background: rgba(15,15,15,0.85);
+    backdrop-filter: blur(12px);
+
+    border-bottom:1px solid rgba(255,255,255,0.1);
+
+    direction: ltr; /* 🔥 مهم جداً */
+}
+
+/* LOGO LEFT */
+.logo{
+    font-size:26px;
+    font-weight:bold;
+    color:#ff3b3b;
+}
+
+/* LINKS RIGHT */
+.nav-links{
+    display:flex;
+    gap:25px;
+    margin-left:auto;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#fff;
+    font-weight:500;
+    position:relative;
+    transition:0.3s;
+}
+
+.nav-links a::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-5px;
+    width:0;
+    height:2px;
+    background:#ff3b3b;
+    transition:0.3s;
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+.nav-links a:hover{
+    color:#ff3b3b;
+}
+
+/* ================= CONTAINER ================= */
+.container{
+    max-width:750px;
+    margin:auto;
+
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(18px);
+
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:18px;
+
+    padding:25px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* TITLES */
+h2,h3{
+    color:#ff3b3b;
+    margin-bottom:10px;
+}
+
+/* INFO */
+.info p{
+    font-size:18px;
+    margin:8px 0;
+}
+
+/* LIST */
+ul{
+    list-style:none;
+    padding:0;
+}
+
+li{
+    background: rgba(255,255,255,0.08);
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+}
+
+/* BUTTONS */
+button{
+    border:none;
+    padding:6px 10px;
+    margin:5px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.edit{ background:#ffc107; }
+.delete{ background:#dc3545; color:white; }
+.add{ background:linear-gradient(45deg,#ff3b3b,#ff0000); color:white; }
+
+/* INPUTS */
+input, select{
+    padding:12px;
+    width:70%;
+    border-radius:10px;
+
+    border:none;
+    outline:none;
+
+    background:rgba(0,0,0,0.4);
+    color:#fff;
+
+    margin:8px 0;
+}
+
+option{
+    background:#111;
+    color:#fff;
+}
+
+small{
+    color:#ccc;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">🚗 CarServ</div>
+
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="mn.html">About</a>
+        <a href="add.html">Add Car</a>
+        <a href="search.html">Search</a>
+    </div>
+</div>
+
+<div class="overlay">
+
+<div class="container">
+
+<h2>🚗 تفاصيل العربية</h2>
+
+<div id="box"></div>
+
+<!-- ADD FAULT -->
+<div style="margin-top:20px; text-align:center;">
+
+    <select id="faultType" onchange="loadFaultOptions()">
+        <option value="">اختر نوع العطل</option>
+        <option value="suspension">عفشة</option>
+        <option value="engine">ميكانيكا</option>
+        <option value="oil">تغيير زيت</option>
+        <option value="computer">فحص كمبيوتر</option>
+    </select>
+
+    <div id="faultOptions"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let car = JSON.parse(localStorage.getItem("selectedCar"));
+let cars = JSON.parse(localStorage.getItem("cars")) || [];
+
+/* ================= RENDER ================= */
+function render(){
+
+    let box = document.getElementById("box");
+
+    if(!car){
+        box.innerHTML = "<p>لا توجد بيانات</p>";
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="info">
+            <p><b>الاسم:</b> ${car.ownerName}</p>
+            <p><b>العربية:</b> ${car.carType}</p>
+            <p><b>الشاسيه:</b> ${car.chassisNumber}</p>
+        </div>
+
+        <h3>🛠 الأعطال:</h3>
+
+        <ul>
+            ${
+                car.faults && car.faults.length > 0
+                ? car.faults.map((f, index)=>`
+                    <li>
+                        🛠 ${f.text || f}
+
+                        <br>
+                        🚗 KM: ${f.km ? f.km + " km" : "غير محدد"}
+
+                        <br>
+                        📅 ${f.date || ""} ⏰ ${f.time || ""}
+
+                        <br>
+                        <button class="edit" onclick="editFault(${index})">✏️</button>
+                        <button class="delete" onclick="deleteFault(${index})">🗑️</button>
+                    </li>
+                `).join("")
+                : "<li>لا يوجد أعطال</li>"
+            }
+        </ul>
+    `;
+}
+
+/* ================= OPTIONS ================= */
+function loadFaultOptions(){
+
+    let type = document.getElementById("faultType").value;
+    let box = document.getElementById("faultOptions");
+
+    box.innerHTML = "";
+
+    if(!type){
+        box.innerHTML = "<p style='color:#ccc'>اختر نوع العطل</p>";
+        return;
+    }
+
+    let baseOptions = [];
+
+    if(type === "suspension"){
+        baseOptions = ["مساعدين","بطاحات","مقصات","كبالن"];
+    }
+    else if(type === "engine"){
+        baseOptions = ["سحب ضعيف","تقطيع موتور","بوجيهات"];
+    }
+    else if(type === "oil"){
+        baseOptions = ["تغيير زيت موتور","فلتر زيت","زيت فتيس"];
+    }
+    else if(type === "computer"){
+        baseOptions = ["فحص ECU","Reset كمبيوتر","قراءة حساسات"];
+    }
+
+    let saved = JSON.parse(localStorage.getItem(type+"_faults")) || [];
+    let allOptions = [...baseOptions, ...saved];
+
+    box.innerHTML = `
+        <select id="fault">
+            ${allOptions.map(i=>`<option value="${i}">${i}</option>`).join("")}
+        </select>
+
+        <input id="faultKm" type="number" placeholder="كيلومترات وقت العطل">
+
+        <button class="add" onclick="addFault()">
+            ➕ إضافة العطل
+        </button>
+    `;
+}
+
+/* ================= ADD FAULT ================= */
+function addFault(){
+
+    let fault = document.getElementById("fault");
+    let km = document.getElementById("faultKm").value;
+
+    if(!fault || km === ""){
+        alert("اكتب العطل والكيلومترات");
+        return;
+    }
+
+    if(!car.faults) car.faults = [];
+
+    car.faults.push({
+        text: fault.value,
+        km: km,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+    });
+
+    updateStorage();
+    render();
+
+    document.getElementById("faultKm").value = "";
+}
+
+/* ================= EDIT FAULT ================= */
+function editFault(index){
+
+    let old = car.faults[index];
+
+    let currentText = old.text || old;
+    let currentKm = old.km || "";
+
+    let newText = prompt("عدل العطل:", currentText);
+    if(newText === null) return;
+
+    let newKm = prompt("عدل الكيلومترات:", currentKm);
+    if(newKm === null) return;
+
+    car.faults[index] = {
+        text: newText,
+        km: newKm,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+    };
+
+    updateStorage();
+    render();
+}
+
+/* ================= DELETE FAULT (FIXED) ================= */
+function deleteFault(index){
+
+    if(confirm("هل أنت متأكد من حذف العطل؟")){
+
+        car.faults.splice(index, 1);
+
+        updateStorage();
+        render();
+    }
+}
+
+/* ================= STORAGE ================= */
+function updateStorage(){
+
+    let index = cars.findIndex(c => c.chassisNumber === car.chassisNumber);
+
+    if(index !== -1){
+        cars[index] = car;
+    }
+
+    localStorage.setItem("cars", JSON.stringify(cars));
+    localStorage.setItem("selectedCar", JSON.stringify(car));
+}
+
+render();
+
+</script>
+
+</body>
+</html>
